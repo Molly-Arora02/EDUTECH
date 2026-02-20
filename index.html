@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menthra Track | Elite Learning Ecosystem</title>
+<style>
+:root {
+  --primary: #ff00cc;
+  --secondary: #00ffff;
+  --bg-dark: #0f172a;
+  --panel-bg: #1e293b;
+  --text-main: #f8fafc;
+  --accent-gradient: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+body {
+  background: var(--bg-dark);
+  color: var(--text-main);
+  overflow-x: hidden;
+}
+
+/* Header */
+header {
+  padding: 1rem 8%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(15, 23, 42, 0.95);
+  backdrop-filter: blur(10px);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.logo { font-size: 1.5rem; font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+nav a { color: #94a3b8; text-decoration: none; margin-left: 20px; cursor: pointer; font-size: 0.9rem; transition: 0.3s; }
+nav a:hover { color: var(--secondary); }
+
+/* Layout */
+.section { padding: 120px 8% 50px; display: none; min-height: 100vh; }
+.active-section { display: block; animation: fadeIn 0.5s ease; }
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Grid & Cards */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  transition: 0.4s;
+}
+
+.card:hover {
+  transform: translateY(-10px);
+  border-color: var(--secondary);
+  box-shadow: 0 10px 40px rgba(0,255,255,0.15);
+}
+
+.card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  display: block;
+}
+
+.card-content { padding: 25px; }
+
+.btn {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: var(--accent-gradient);
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 15px;
+  transition: 0.3s;
+}
+
+.btn:hover { transform: scale(1.02); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--secondary);
+  color: var(--secondary);
+}
+
+/* Progress Bar UI */
+.progress-bar-container {
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 10px;
+  margin: 15px 0 5px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: 10px;
+  transition: width 0.4s ease;
+}
+
+/* Syllabus Drawer */
+.drawer {
+  position: fixed;
+  right: -450px;
+  top: 0;
+  width: 400px;
+  height: 100%;
+  background: #111827;
+  z-index: 2000;
+  box-shadow: -10px 0 30px rgba(0,0,0,0.5);
+  transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 40px 30px;
+  overflow-y: auto;
+}
+
+.drawer.open { right: 0; }
+
+.module-item {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.overlay {
+  position: fixed;
+  top:0; left:0; width:100%; height:100%;
+  background: rgba(0,0,0,0.7);
+  display:none;
+  z-index: 1500;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">MENTHRA</div>
+  <nav>
+    <a onclick="showSection('home')">Home</a>
+    <a onclick="showSection('explore')">Explore</a>
+    <a onclick="showSection('myCourses')">My Library</a>
+  </nav>
+</header>
+
+<div class="overlay" id="overlay" onclick="closeSyllabus()"></div>
+
+<div class="drawer" id="syllabusDrawer">
+  <h2 id="drawerTitle" style="margin-bottom:10px;">Course Content</h2>
+  <p id="drawerDescription" style="color: #94a3b8; margin-bottom: 25px; font-size: 0.9rem;"></p>
+  <div id="moduleList"></div>
+  <button class="btn" onclick="closeSyllabus()" style="margin-top:20px;">Save & Close</button>
+</div>
+
+<section class="section active-section" id="home" style="text-align: center; padding-top: 180px;">
+  <h1 style="font-size: 4rem;">Elite <span style="color: var(--secondary);">Code</span> Mastery</h1>
+  <p style="margin: 20px 0; color: #94a3b8; font-size: 1.2rem;">Track your growth. Build the future.</p>
+  <button class="btn" style="width: 250px; font-size: 1.1rem;" onclick="showSection('explore')">Explore Tracks</button>
+</section>
+
+<section class="section" id="explore">
+  <h2>Available Tracks</h2>
+  <div class="grid" id="exploreGrid"></div>
+</section>
+
+<section class="section" id="myCourses">
+  <h2>My Active Learning Path</h2>
+  <div class="grid" id="myGrid"></div>
+</section>
+
+<script>
+const courseData = {
+  1: {
+    name: "DSA in C++ Masterclass",
+    img: "https://images.unsplash.com/photo-1587620498307-299f182603f1?auto=format&fit=crop&w=800&q=80",
+    desc: "From Big O to Advanced DP. The ultimate roadmap for FAANG interviews.",
+    modules: ["Complexity Analysis", "Recursion & Backtracking", "Linked Lists & Stacks", "Dynamic Programming", "Graph Theory"]
+  },
+  2: {
+    name: "Full Stack MERN Dev",
+    img: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?auto=format&fit=crop&w=800&q=80",
+    desc: "Build and deploy scalable web apps using React, Node, and MongoDB.",
+    modules: ["React Fundamentals", "State Management (Redux)", "Backend with Node.js", "MongoDB Mastery", "Deploying to AWS"]
+  },
+  3: {
+    name: "System Design Elite",
+    img: "https://images.unsplash.com/photo-1558494949-ef010cbdcc51?auto=format&fit=crop&w=800&q=80",
+    desc: "Understand how to build systems for millions of concurrent users.",
+    modules: ["Load Balancing", "Database Sharding", "Caching with Redis", "Microservices Intro", "Message Queues (Kafka)"]
+  }
+};
+
+let purchasedIds = [1]; 
+let progressData = { 1: [], 2: [], 3: [] };
+
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active-section'));
+  document.getElementById(id).classList.add('active-section');
+}
+
+function loadGrids() {
+  const exploreGrid = document.getElementById("exploreGrid");
+  const myGrid = document.getElementById("myGrid");
+  
+  exploreGrid.innerHTML = "";
+  myGrid.innerHTML = "";
+
+  Object.keys(courseData).forEach(id => {
+    const course = courseData[id];
+    const isOwned = purchasedIds.includes(parseInt(id));
+    const completed = progressData[id] ? progressData[id].length : 0;
+    const percent = Math.round((completed / course.modules.length) * 100);
+
+    const cardHTML = `
+      <div class="card">
+        <img src="${course.img}" alt="${course.name}" onerror="this.src='https://images.unsplash.com/photo-1516116216624-53e697fedbea?q=80&w=800'">
+        <div class="card-content">
+          <h3>${course.name}</h3>
+          <p style="color:#94a3b8; font-size:0.85rem; margin:12px 0;">${course.desc}</p>
+          
+          ${isOwned ? `
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--secondary)">
+              <span>Progress</span><span>${percent}%</span>
+            </div>
+            <div class="progress-bar-container">
+              <div class="progress-fill" style="width: ${percent}%"></div>
+            </div>
+          ` : ''}
+
+          <button class="btn ${isOwned ? 'btn-outline' : ''}" onclick="handleAction(${id})">
+            ${isOwned ? 'View Syllabus' : 'Enroll Now'}
+          </button>
+        </div>
+      </div>
+    `;
+
+    exploreGrid.innerHTML += cardHTML;
+    if(isOwned) myGrid.innerHTML += cardHTML;
+  });
+}
+
+function handleAction(id) {
+  if (purchasedIds.includes(id)) {
+    openSyllabus(id);
+  } else {
+    purchasedIds.push(id);
+    loadGrids();
+    alert("Welcome to the track! Let's get started.");
+  }
+}
+
+function openSyllabus(id) {
+  const course = courseData[id];
+  document.getElementById("drawerTitle").innerText = course.name;
+  document.getElementById("drawerDescription").innerText = `Master ${course.modules.length} key modules to finish this track.`;
+  
+  const list = document.getElementById("moduleList");
+  list.innerHTML = course.modules.map((m, idx) => {
+    const isDone = progressData[id].includes(idx) ? 'checked' : '';
+    return `
+      <div class="module-item">
+        <input type="checkbox" id="m-${id}-${idx}" ${isDone} onchange="toggleModule(${id}, ${idx})">
+        <label for="m-${id}-${idx}">${m}</label>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById("syllabusDrawer").classList.add("open");
+  document.getElementById("overlay").style.display = "block";
+}
+
+function toggleModule(courseId, moduleIdx) {
+  const list = progressData[courseId];
+  const foundIdx = list.indexOf(moduleIdx);
+  
+  if (foundIdx > -1) {
+    list.splice(foundIdx, 1);
+  } else {
+    list.push(moduleIdx);
+  }
+  loadGrids(); // Refresh bars
+}
+
+function closeSyllabus() {
+  document.getElementById("syllabusDrawer").classList.remove("open");
+  document.getElementById("overlay").style.display = "none";
+}
+
+// Start
+loadGrids();
+</script>
+</body>
+</html>
